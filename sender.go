@@ -87,6 +87,13 @@ func (c *Client) send(m *Message) (*Response, int, error) {
 	defer resp.Body.Close()
 
 	if err := errorMap[resp.StatusCode]; err != nil {
+		if resp.StatusCode == 400 {
+			// in this case we need to parse the response body for clues
+			b, err2 := ioutil.ReadAll(resp.Body)
+			if err2 == nil {
+				err = errors.New(string(b))
+			}
+		}
 		return nil, -1, err
 	}
 

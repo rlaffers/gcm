@@ -10,7 +10,8 @@ func (e errorString) Error() string {
 
 var (
 	errorMap = map[int]error{
-		400: errors.New("Invalid JSON"),
+		//400: errors.New("Invalid JSON"), // GCM sends 400 also when the request contains other errors
+		400: errors.New("Bad Request"),
 		401: errors.New("Authentication Error"),
 	}
 )
