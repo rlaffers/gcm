@@ -12,7 +12,7 @@ import (
 // sending anything
 // at https://developers.google.com/cloud-messaging/http-server-ref
 type Message struct {
-	To                    string                 `json:"to"`
+	To                    string                 `json:"to,omitempty"`
 	RegistrationIDs       []string               `json:"registration_ids,omitempty"`
 	CollapseKey           string                 `json:"collapse_key,omitempty"`
 	Priority              string                 `json:"priority,omitempty"`
