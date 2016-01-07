@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -70,11 +71,24 @@ func (m *Message) Validate() error {
 
 // update checks for unavailable registration ids and modifies the Message
 // so they can be retried
+// IDs which are not registered are removed. The remaining IDs are removed as well,
+// since the message has been delivered to them.
 func (m *Message) update(r *Response) {
 	var regIDs []string
 	for i, result := range r.Results {
-		if result.Error == errorUnavailable {
+		switch {
+		case result.Error == errorUnavailable:
 			regIDs = append(regIDs, m.RegistrationIDs[i])
+		case result.Error == errorNotRegistered:
+			// this reg id is no longer available. remove it
+		case result.Error == errorInvalidRegistration:
+			// invalid format of the reg ID
+			// remove it
+		case result.MessageID != "":
+			// acknowledged. remove it
+		default:
+			// unknown Error
+			panic(fmt.Errorf("GCM server returned unexpected error in results: %s", result.Error))
 		}
 	}
 	m.RegistrationIDs = regIDs

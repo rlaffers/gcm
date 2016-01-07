@@ -17,7 +17,9 @@ var (
 )
 
 const (
-	errorUnavailable = "Unavailable"
+	errorUnavailable         = "Unavailable"
+	errorNotRegistered       = "NotRegistered"
+	errorInvalidRegistration = "InvalidRegistration"
 )
 
 // Response represents the GCM server's response to the application

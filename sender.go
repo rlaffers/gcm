@@ -123,19 +123,19 @@ func (c *Client) send(m *Message) (*Response, int, error) {
 		return r, -1, r.Error
 	}
 
-	return r, 1, nil
+	return r, 0, nil
 }
 
 // Send sends a message to the GCM server, retrying in case of
 // service unavailability. A non-nil error is returned if a non-recoverable
 // error occurs (i.e. if the response status is not "200 OK").
 func (c Client) Send(m *Message) (*Response, error) {
-	r, backoff, err := c.send(m)
-	if err != nil {
-		return r, err
-	}
-	for i := 0; i < c.RetryCount; i++ {
-		time.Sleep(time.Second * time.Duration(2<<uint(backoff*i)))
+	var (
+		r       *Response
+		backoff int
+		err     error
+	)
+	for i := 0; i <= c.RetryCount; i++ {
 		r, backoff, err = c.send(m)
 		if err != nil {
 			return r, err
@@ -143,6 +143,7 @@ func (c Client) Send(m *Message) (*Response, error) {
 		if backoff == 0 {
 			return r, nil
 		}
+		time.Sleep(time.Second * time.Duration(2<<uint(backoff*i)))
 		m.update(r)
 	}
 	return r, errors.New("Retry limit exceeded")
